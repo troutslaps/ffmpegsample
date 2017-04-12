@@ -82,26 +82,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    void startSequenceEncoding(View v) {
-        new Runnable() {
-            @Override
-            public void run() {
-                Bitmap[] sequence = createBitmapArray();
-                SequenceEncoder se = null;
-                File output = createOutputFile("jcodec");
-                try {
-                    se = new SequenceEncoder(output);
 
-                    for (int i = 0; i < 3; i++) {
-                        se.encodeNativeFrame(fromBitmap(sequence[i]));
-                    }
-                    se.finish();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.run();
-    }
 
     private File createOutputFile(String tag) {
         File directory = new File(Environment.getExternalStorageDirectory() + "/" +
@@ -114,38 +95,6 @@ public class MainActivity extends AppCompatActivity {
         return output;
     }
 
-    private Bitmap[] createBitmapArray() {
-        Bitmap[] bitmaps = new Bitmap[]{
-                BitmapFactory.decodeResource(getResources(), R.drawable.image_one),
-                BitmapFactory.decodeResource(getResources(), R.drawable.image_two),
-                BitmapFactory.decodeResource(getResources(), R.drawable.image_three),
-        };
-
-        return bitmaps;
-
-    }
-
-    public Picture fromBitmap(Bitmap src) {
-        Picture dst = Picture.create((int) src.getWidth(), (int) src.getHeight(), ColorSpace.RGB);
-        fromBitmap(src, dst);
-        return dst;
-    }
-
-    public void fromBitmap(Bitmap src, Picture dst) {
-        int[] dstData = dst.getPlaneData(0);
-        int[] packed = new int[src.getWidth() * src.getHeight()];
-
-        src.getPixels(packed, 0, src.getWidth(), 0, 0, src.getWidth(), src.getHeight());
-
-        for (int i = 0, srcOff = 0, dstOff = 0; i < src.getHeight(); i++) {
-            for (int j = 0; j < src.getWidth(); j++, srcOff++, dstOff += 3) {
-                int rgb = packed[srcOff];
-                dstData[dstOff] = (rgb >> 16) & 0xff;
-                dstData[dstOff + 1] = (rgb >> 8) & 0xff;
-                dstData[dstOff + 2] = rgb & 0xff;
-            }
-        }
-    }
 
 
     public void startFfmpegEncoding(View v) {
@@ -190,12 +139,6 @@ public class MainActivity extends AppCompatActivity {
                             savedLogos.get(0),
                             "-i",
                             savedLogos.get(1),
-                            "-c:v",
-                            "h264_nvenc",
-                            "-vcodec",
-                            "mpeg2video",
-                            "-threads",
-                            "0",
                             "-filter_complex",
                             "[0:v]format=yuva420p,scale=-2:10*ih,zoompan=z='min(max(zoom,pzoom)" +
                                     "+0.0015,1.5)':d=75:s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-" +
@@ -218,12 +161,14 @@ public class MainActivity extends AppCompatActivity {
                                     "[withinfo][end2]overlay,fifo",
                             "-preset",
                             "ultrafast",
-                            "-vcodec",
-                            "libx264",
                             "-r",
                             "15",
                             "-crf",
                             "35",
+                            "-c:v",
+                            "h264_nvenc",
+                            "-vcodec",
+                            "mpeg2video",
                             output.getAbsolutePath()};
                     Log.d(TAG, "now attempting command");
 
@@ -314,14 +259,14 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }
-        downloadLogos();
+
 
     }
 
     private void downloadLogos() {
         for (int i = 0; i < logos.size(); i++) {
             final int index = i;
-            DrawableRequestBuilder builder = Glide.with(this).load(urls.get(i)).centerCrop();
+            DrawableRequestBuilder builder = Glide.with(this).load(logos.get(i)).centerCrop();
             builder.into(new SimpleTarget<GlideBitmapDrawable>() {
 
                 @Override
