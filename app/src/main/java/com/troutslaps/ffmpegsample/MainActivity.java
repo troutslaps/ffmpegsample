@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
                         os.close();
                         Log.d(TAG, "downloaded = " + file.getAbsolutePath());
                         savedLogos.add(file.getAbsolutePath());
-                        if (savedLogos.size() >= urls.size()) {
+                        if (savedLogos.size() >= logos.size()) {
                             createVideo();
                         }
                     } catch (FileNotFoundException e) {
