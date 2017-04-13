@@ -3,9 +3,9 @@ package com.troutslaps.ffmpegsample;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -24,10 +24,6 @@ import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
-import org.jcodec.api.android.SequenceEncoder;
-import org.jcodec.common.model.ColorSpace;
-import org.jcodec.common.model.Picture;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -41,36 +37,39 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public final static int WRITE_STORAGE_REQUEST = 1000;
+
     private static final String TAG = MainActivity.class.getSimpleName();
+
     List<String> urls;
     List<String> logos;
     ArrayList<String> savedImageFiles;
     ArrayList<String> savedLogos;
+    File output = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
-                    .WRITE_EXTERNAL_STORAGE}, WRITE_STORAGE_REQUEST);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_STORAGE_REQUEST);
         }
-        urls = Arrays.asList("http://i.imgur.com/hYeR3Xp.jpg", "http://i.imgur.com/IIbEefR.jpg",
+
+        urls = Arrays.asList(
+                "http://i.imgur.com/hYeR3Xp.jpg",
+                "http://i.imgur.com/IIbEefR.jpg",
                 "http://i.imgur.com/F5XvbNY.jpg");
-        logos = Arrays.asList("https://sdl-stickershop.line.naver" +
-                        ".jp/products/0/0/1/1050431/android/stickers/2099490.png;compress=true",
-                "https://sdl-stickershop.line.naver" +
-                        ".jp/products/0/0/1/1050431/android/stickers/2099499.png;compress=true");
+
+        logos = Arrays.asList(
+                "https://sdl-stickershop.line.naver" + ".jp/products/0/0/1/1050431/android/stickers/2099490.png;compress=true",
+                "https://sdl-stickershop.line.naver" + ".jp/products/0/0/1/1050431/android/stickers/2099499.png;compress=true");
 
         savedImageFiles = new ArrayList<>();
         savedLogos = new ArrayList<>();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         if (requestCode == WRITE_STORAGE_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -82,20 +81,16 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
-
     private File createOutputFile(String tag) {
-        File directory = new File(Environment.getExternalStorageDirectory() + "/" +
-                Environment
-                        .DIRECTORY_PICTURES + "/videotests/");
-        if (!directory.exists()) {
-            directory.mkdir();
+        File mediaFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "/videotests/");
+
+        if (!mediaFile.exists()) {
+            mediaFile.mkdir();
         }
-        File output = new File(directory, tag + "-" + new Date().getTime() + ".mp4");
+
+        File output = new File(mediaFile, tag + "-" + new Date().getTime() + ".mp4");
         return output;
     }
-
-
 
     public void startFfmpegEncoding(View v) {
         downloadImages();
@@ -103,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void createVideo() {
         final FFmpeg ffmpeg = FFmpeg.getInstance(this);
+
         try {
             ffmpeg.loadBinary(new LoadBinaryResponseHandler() {
 
@@ -120,56 +116,23 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess() {
                     Log.d(TAG, "succeeded in loading ffmpeg");
 
-                    File directory = new File(Environment.getExternalStorageDirectory() + "/" +
-                            Environment
-                                    .DIRECTORY_PICTURES + "/videotests/");
-                    if (!directory.exists()) {
-                        directory.mkdir();
-                    }
-
-                    final File output = createOutputFile("ffmpeg");
+                    output = createOutputFile("ffmpeg");
                     final String[] command = {
-                            "-i",
-                            savedImageFiles.get(0),
-                            "-i",
-                            savedImageFiles.get(1),
-                            "-i",
-                            savedImageFiles.get(2),
-                            "-i",
-                            savedLogos.get(0),
-                            "-i",
-                            savedLogos.get(1),
+                            "-loop", "1", "-t", "2", "-i", savedImageFiles.get(0),
+                            "-loop", "1", "-t", "2", "-i", savedImageFiles.get(1),
+                            "-loop", "1", "-t", "2", "-i", savedImageFiles.get(2),
                             "-filter_complex",
-                            "[0:v]format=yuva420p,scale=-2:10*ih,zoompan=z='min(max(zoom,pzoom)" +
-                                    "+0.0015,1.5)':d=75:s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-" +
-                                    "(ih/zoom/2)',fifo[first];[1:v]format=yuva420p," +
-                                    "scale=-2:10*ih,zoompan=z='min(max(zoom,pzoom)+0.0015,1.5)" +
-                                    "':d=75:s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'," +
-                                    "fade=t=in:st=0:d=1:alpha=1,trim=0:4,setpts=PTS+3/TB," +
-                                    "fifo[second];[2:v]format=yuva420p,scale=-2:10*ih," +
-                                    "zoompan=z='min(max(zoom,pzoom)+0.0015,1.5)" +
-                                    "':d=90:s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'," +
-                                    "fade=t=in:st=0:d=1:alpha=1,trim=0:4,setpts=PTS+6/TB," +
-                                    "fifo[third];[2:v]format=yuva420p,scale=-2:10*ih," +
-                                    "zoompan=z='min(max(zoom,pzoom)+0.0015,1.5)" +
-                                    "':d=150:s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'," +
-                                    "boxblur=20:1,fifo[blur];[blur][4:v]overlay,fifo[end];" +
-                                    "[end]trim=4:7,fade=t=in:st=4:d=1:alpha=1,setpts=PTS+6/TB," +
-                                    "fifo[end2];[first][second]overlay,fifo[pair1];" +
-                                    "[pair1][third]overlay,fifo[slideshow];" +
-                                    "[slideshow][3:v]overlay,fifo[withinfo];" +
-                                    "[withinfo][end2]overlay,fifo",
-                            "-preset",
-                            "ultrafast",
-                            "-r",
-                            "15",
-                            "-crf",
-                            "35",
-                            "-c:v",
-                            "h264_nvenc",
-                            "-vcodec",
-                            "mpeg2video",
+                            "[1:v][0:v]blend=all_expr='A*(if(gte(T,0.5),1,T/0.5))+B*(1-(if(gte(T,0.5),1,T/0.5)))'[b1v];" +
+                            "[2:v][1:v]blend=all_expr='A*(if(gte(T,0.5),1,T/0.5))+B*(1-(if(gte(T,0.5),1,T/0.5)))'[b2v];" +
+                            "[0:v][b1v][1:v][b2v][2:v]concat=n=5:v=1:a=0,format=yuv420p[v]",
+                            "-map", "[v]",
+                            "-preset", "ultrafast",
+                            "-c:v", "libx264",
+                            "-pix_fmt", "yuv420p",
+                            "-s", "640x640",
+                            "-aspect", "1:1",
                             output.getAbsolutePath()};
+
                     Log.d(TAG, "now attempting command");
 
                     try {
@@ -194,16 +157,13 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onSuccess(String message) {
-                                Log.d(TAG, "succeeded executing ffmpeg command = " + message + "," +
-                                        " " +
-                                        output.getAbsolutePath());
+                                Log.d(TAG, "succeeded executing ffmpeg command = " + message + ", " + output.getAbsolutePath());
                             }
 
                             @Override
                             public void onFinish() {
                                 long endDate = new Date().getTime();
-                                Log.d(TAG, "finished executing ffmpeg command = " + output
-                                        .getAbsolutePath() + ", at endDate = " + endDate);
+                                Log.d(TAG, "finished executing ffmpeg command = " + output.getAbsolutePath() + ", at endDate = " + endDate);
                             }
                         });
                     } catch (FFmpegCommandAlreadyRunningException e) {
@@ -224,43 +184,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadImages() {
-
         for (int i = 0; i < urls.size(); i++) {
             final int index = i;
             DrawableRequestBuilder builder = Glide.with(this).load(urls.get(i)).centerCrop();
             builder.into(new SimpleTarget<GlideBitmapDrawable>(640, 640) {
 
                 @Override
-                public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super
-                        GlideBitmapDrawable> glideAnimation) {
-                    File directory = new File(Environment.getExternalStorageDirectory() + "/" +
-                            Environment.DIRECTORY_PICTURES + "/videotests/");
-                    if (!directory.exists()) {
-                        directory.mkdir();
-                    }
-                    Bitmap bitmap = resource.getBitmap();
-                    File file = new File(directory, String.format("%04d.png", index));
-                    try {
-                        OutputStream os = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 0, os);
-                        os.flush();
-                        os.close();
-                        Log.d(TAG, "downloaded = " + file.getAbsolutePath());
-                        savedImageFiles.add(file.getAbsolutePath());
+                public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super GlideBitmapDrawable> glideAnimation) {
+                    String path = save(resource.getBitmap(), String.format("%04d.jpg", index));
+                    if (path != null) {
+                        savedImageFiles.add(path);
                         if (savedImageFiles.size() >= urls.size()) {
                             downloadLogos();
                         }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
             });
-
         }
-
-
     }
 
     private void downloadLogos() {
@@ -270,33 +210,41 @@ public class MainActivity extends AppCompatActivity {
             builder.into(new SimpleTarget<GlideBitmapDrawable>() {
 
                 @Override
-                public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super
-                        GlideBitmapDrawable> glideAnimation) {
-                    File directory = new File(Environment.getExternalStorageDirectory() + "/" +
-                            Environment.DIRECTORY_PICTURES + "/videotests/");
-                    if (!directory.exists()) {
-                        directory.mkdir();
-                    }
-                    Bitmap bitmap = resource.getBitmap();
-                    File file = new File(directory, String.format("logo%04d.png", index));
-                    try {
-                        OutputStream os = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 0, os);
-                        os.flush();
-                        os.close();
-                        Log.d(TAG, "downloaded = " + file.getAbsolutePath());
-                        savedLogos.add(file.getAbsolutePath());
-                        if (savedLogos.size() >= logos.size()) {
+                public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super GlideBitmapDrawable> glideAnimation) {
+                    String path = save(resource.getBitmap(), String.format("logo%04d.jpg", index));
+                    if (path != null) {
+                        savedLogos.add(path);
+                        if ((savedLogos.size() >= logos.size()) && (output == null)) {
                             createVideo();
                         }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
             });
+        }
+    }
 
+    @Nullable
+    private String save(Bitmap bitmap, String filename) {
+        File mediaFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "/videotests/");
+
+        if (!mediaFile.exists()) {
+            mediaFile.mkdir();
+        }
+
+        File file = new File(mediaFile.getPath() + File.separator + filename);
+        try {
+            OutputStream os = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, os);
+            os.flush();
+            os.close();
+            Log.d(TAG, "saved file  = " + file.getAbsolutePath());
+            return file.getAbsolutePath();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
