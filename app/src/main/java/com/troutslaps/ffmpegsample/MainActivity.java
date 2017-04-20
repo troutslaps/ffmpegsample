@@ -3,6 +3,7 @@ package com.troutslaps.ffmpegsample;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.bumptech.glide.DrawableRequestBuilder;
 import com.bumptech.glide.Glide;
@@ -34,6 +37,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
 public class MainActivity extends AppCompatActivity {
 
     public final static int WRITE_STORAGE_REQUEST = 1000;
@@ -52,29 +57,35 @@ public class MainActivity extends AppCompatActivity {
     private final static int IMAGE_SIZE = 640;
     private final static int SCALE_INCREMENT = 4;
 
+    private final static String profilePhotoUrl = "http://i.imgur.com/X3P1lnd.jpg";
+    private String profilePhotoPath;
+
+    private Button btnStart;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        urls = Arrays.asList(
+                "http://i.imgur.com/hYeR3Xp.jpg",
+                "http://i.imgur.com/IIbEefR.jpg",
+                "http://i.imgur.com/P1qUUrO.jpg",
+                "http://i.imgur.com/hj1tvag.jpg");
+
+
+        savedImageFiles = new ArrayList<>();
+        savedLogos = new ArrayList<>();
+        btnStart = (Button) findViewById(R.id.btn_ffmpeg);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
                     .WRITE_EXTERNAL_STORAGE}, WRITE_STORAGE_REQUEST);
+        } else {
+            downloadImages();
         }
 
-        urls = Arrays.asList(
-                "http://i.imgur.com/hYeR3Xp.jpg",
-                "http://i.imgur.com/IIbEefR.jpg");
 
-        logos = Arrays.asList(
-                "https://sdl-stickershop.line.naver" +
-                        ".jp/products/0/0/1/1050431/android/stickers/2099490.png;compress=true",
-                "https://sdl-stickershop.line.naver" + "" +
-                        ".jp/products/0/0/1/1050431/android/stickers/2099499.png;compress=true");
-
-        savedImageFiles = new ArrayList<>();
-        savedLogos = new ArrayList<>();
     }
 
     @Override
@@ -83,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == WRITE_STORAGE_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                downloadImages();
             }
         } else {
 
@@ -91,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private File createOutputFile() {
+    private File createOutputFile(String tag, String extension) {
         File mediaFile = new File(Environment.getExternalStoragePublicDirectory(Environment
                 .DIRECTORY_PICTURES), "/videotests/");
 
@@ -99,15 +110,13 @@ public class MainActivity extends AppCompatActivity {
             mediaFile.mkdir();
         }
 
-        File output = new File(mediaFile, new Date().getTime() + ".mp4");
+        File output = new File(mediaFile, tag + "-" + new Date().getTime() + "." + extension);
         return output;
     }
 
     public void startFfmpegEncoding(View v) {
-        if(savedImageFiles.size() > 0 && savedLogos.size() > 0) {
+        if (savedImageFiles.size() > 0 && savedLogos.size() > 0) {
             createVideo();
-        } else {
-            downloadImages();
         }
     }
 
@@ -119,24 +128,27 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onStart() {
-                    Log.d(TAG, "starting to load ffmpeg");
+
+                    disableButton("starting to load ffmpeg");
                 }
 
                 @Override
                 public void onFailure() {
-                    Log.d(TAG, "failed to load ffmpeg");
+
+                    enableButton();
+                    Toast.makeText(MainActivity.this, "failed to load ffmpeg", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onSuccess() {
-                    Log.d(TAG, "succeeded in loading ffmpeg");
+                    disableButton("succeeded in loading ffmpeg");
 
-                    output = createOutputFile();
+                    output = createOutputFile("video", "mp4");
 
                     String[] command = createManualZoompanLargeCommand(savedImageFiles.size());
 
 
-                    Log.d(TAG, "now attempting command");
+                    disableButton("now attempting command");
 
                     try {
                         // to execute "ffmpeg -version" command you just need to pass "-version"
@@ -147,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onStart() {
                                 startDate = new Date().getTime();
-                                Log.d(TAG, "starting ffmpeg command at startDate = " + startDate);
                             }
 
                             @Override
@@ -155,29 +166,33 @@ public class MainActivity extends AppCompatActivity {
 
                                 float totalDuration = (savedImageFiles.size() + 1) * 3;
                                 int startIndex = message.indexOf("time=");
-                                if(startIndex > 0) {
+                                if (startIndex > 0) {
                                     String timeStr = message.substring(startIndex + 11,
                                             startIndex +
-                                            15);
+                                                    15);
                                     float currentProgress = Float.parseFloat(timeStr);
                                     float progress = (currentProgress / totalDuration) * 100.0f;
-                                    Log.d(TAG, "progress = " + progress + "%");
+                                    disableButton(progress + "%");
                                 } else {
 //                                    Log.d(TAG, "unable to get progress");
                                 }
-
 
 
                             }
 
                             @Override
                             public void onFailure(String message) {
-                                Log.d(TAG, "failed executing ffmpeg command = " + message);
+                                enableButton();
+                                Toast.makeText(MainActivity.this, "failed executing ffmpeg " +
+                                        "command = " + message, Toast.LENGTH_LONG).show();
                             }
 
                             @Override
                             public void onSuccess(String message) {
-                                Log.d(TAG, "succeeded executing ffmpeg command = " + message + "," +
+                                enableButton();
+                                Toast.makeText(MainActivity.this,"succeeded executing ffmpeg command = " + message + "," +
+                                        " " + output.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                                        Log.d(TAG, "succeeded executing ffmpeg command = " + message + "," +
                                         " " + output.getAbsolutePath());
                             }
 
@@ -221,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
         for (i = 0; i < numberOfFiles; i++) {
 
             boolean lastImage = i >= numberOfFiles - 1;
-            zoompans.append(generateManualZoompanFiltersForInput(i, 4, IMAGE_SIZE,
+            zoompans.append(generateManualZoompanFiltersForInput(i, SCALE_INCREMENT, IMAGE_SIZE,
                     numberOfFramesPerImage, String
                             .format("img%1d", i), true));
 
@@ -304,35 +319,6 @@ public class MainActivity extends AppCompatActivity {
         commands.add(Integer.toString(FPS));
         commands.add(output.getAbsolutePath());
 
-        File mediaFile = new File(Environment.getExternalStoragePublicDirectory(Environment
-                .DIRECTORY_PICTURES), "/videotests/");
-
-
-        if (!mediaFile.exists()) {
-            mediaFile.mkdir();
-        }
-
-        File logDir = new File(mediaFile.getAbsolutePath(), "/logs/");
-        if (!logDir.exists()) {
-            logDir.mkdir();
-        }
-
-        File file = new File(logDir.getAbsolutePath(), new Date().getTime() + ".txt");
-        //Write a string to the file
-
-        FileOutputStream stream = null;
-        try {
-            stream = new FileOutputStream(file);
-            for (String command : commands) {
-                stream.write((command + "\n").getBytes());
-            }
-
-            stream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         String[] commandsArr = new String[commands.size()];
         commandsArr = commands.toArray(commandsArr);
         return commandsArr;
@@ -416,6 +402,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadImages() {
+        disableButton("preparing resources...");
         for (int i = 0; i < urls.size(); i++) {
             final int index = i;
             DrawableRequestBuilder builder = Glide.with(this).load(urls.get(i)).centerCrop();
@@ -424,11 +411,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super
                         GlideBitmapDrawable> glideAnimation) {
-                    String path = save(resource.getBitmap(), String.format("%04d.jpg", index));
+                    String path = save(resource.getBitmap(), String.format("%04d.jpg", index),
+                            false);
                     if (path != null) {
                         savedImageFiles.add(path);
                         if (savedImageFiles.size() >= urls.size()) {
-                            downloadLogos();
+                            downloadProfilePhoto();
                         }
                     }
                 }
@@ -436,30 +424,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void downloadLogos() {
-        for (int i = 0; i < logos.size(); i++) {
-            final int index = i;
-            DrawableRequestBuilder builder = Glide.with(this).load(logos.get(i)).centerCrop();
-            builder.into(new SimpleTarget<GlideBitmapDrawable>() {
+    private void downloadProfilePhoto() {
+        DrawableRequestBuilder builder = Glide.with(this).load(profilePhotoUrl).centerCrop()
+                .bitmapTransform(new CropCircleTransformation(this));
+        builder.into(new SimpleTarget<GlideBitmapDrawable>(120, 120) {
 
-                @Override
-                public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super
-                        GlideBitmapDrawable> glideAnimation) {
-                    String path = save(resource.getBitmap(), String.format("logo%04d.png", index));
-                    if (path != null) {
-                        savedLogos.add(path);
-                        if ((savedLogos.size() >= logos.size()) && (output == null)) {
-                            createVideo();
-                        }
-                    }
+            @Override
+            public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super
+                    GlideBitmapDrawable> glideAnimation) {
+                String path = save(resource.getBitmap(), "profile.png", true);
+                if (path != null) {
+                    profilePhotoPath = path;
+                    createLogos();
                 }
-            });
+            }
+        });
+    }
+
+    private void createLogos() {
+        Bitmap transparentBitmap = Bitmap.createBitmap(IMAGE_SIZE, IMAGE_SIZE, Bitmap.Config
+                .ARGB_8888);
+        try {
+            String firstLogoPath = createOutputFile("logo1", "png").getAbsolutePath();
+            ShareExperienceUtils.prepareSingleImageFile(transparentBitmap, firstLogoPath,
+                    this, "Photography Contest", "Manila, Philippines");
+            savedLogos.add(firstLogoPath);
+            savedLogos.add(firstLogoPath);
+            enableButton();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
 
+    private void enableButton() {
+        btnStart.setEnabled(true);
+        btnStart.setText("start encoding");
+    }
+
+    private void disableButton(String text) {
+        btnStart.setEnabled(false);
+        btnStart.setText(text);
+    }
     @Nullable
-    private String save(Bitmap bitmap, String filename) {
+    private String save(Bitmap bitmap, String filename, boolean png) {
         File mediaFile = new File(Environment.getExternalStoragePublicDirectory(Environment
                 .DIRECTORY_PICTURES), "/videotests/");
 
@@ -470,7 +478,11 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(mediaFile.getPath() + File.separator + filename);
         try {
             OutputStream os = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 0, os);
+            if (png) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 0, os);
+            } else {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 20, os);
+            }
 
             os.flush();
             os.close();
