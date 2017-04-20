@@ -1,0 +1,443 @@
+
+
+time ffmpeg \
+-loop 1 -t 0.0625 -i 0001.png \
+-filter_complex \
+"[0:v]scale=-1:640[a0];\
+ [0:v]scale=-1:644,crop=640:640[a1];\
+ [0:v]scale=-1:648,crop=640:640[a2];\
+ [0:v]scale=-1:652,crop=640:640[a3];\
+ [0:v]scale=-1:656,crop=640:640[a4];\
+ [0:v]scale=-1:660,crop=640:640[a5];\
+ [0:v]scale=-1:664,crop=640:640[a6];\
+ [0:v]scale=-1:668,crop=640:640[a7];\
+ [0:v]scale=-1:672,crop=640:640[a8];\
+ [0:v]scale=-1:676,crop=640:640[a9];\
+ [0:v]scale=-1:680,crop=640:640[a10];\
+ [0:v]scale=-1:684,crop=640:640[a11];\
+ [0:v]scale=-1:688,crop=640:640[a12];\
+ [0:v]scale=-1:692,crop=640:640[a13];\
+ [0:v]scale=-1:696,crop=640:640[a14];\
+ [0:v]scale=-1:700,crop=640:640[a15];\
+ [0:v]scale=-1:704,crop=640:640[a16];\
+ [0:v]scale=-1:708,crop=640:640[a17];\
+ [0:v]scale=-1:712,crop=640:640[a18];\
+ [0:v]scale=-1:716,crop=640:640[a19];\
+ [0:v]scale=-1:720,crop=640:640[a20];\
+ [0:v]scale=-1:724,crop=640:640[a21];\
+ [0:v]scale=-1:728,crop=640:640[a22];\
+ [0:v]scale=-1:732,crop=640:640[a23];\
+ [0:v]scale=-1:736,crop=640:640[a24];\
+ [0:v]scale=-1:740,crop=640:640[a25];\
+ [0:v]scale=-1:744,crop=640:640[a26];\
+ [0:v]scale=-1:748,crop=640:640[a27];\
+ [0:v]scale=-1:752,crop=640:640[a28];\
+ [0:v]scale=-1:756,crop=640:640[a29];\
+ [0:v]scale=-1:760,crop=640:640[a30];\
+ [0:v]scale=-1:764,crop=640:640[a31];\
+ [0:v]scale=-1:768,crop=640:640[a32];\
+ [0:v]scale=-1:772,crop=640:640[a33];\
+ [0:v]scale=-1:776,crop=640:640[a34];\
+ [0:v]scale=-1:780,crop=640:640[a35];\
+ [0:v]scale=-1:784,crop=640:640[a36];\
+ [0:v]scale=-1:788,crop=640:640[a37];\
+ [0:v]scale=-1:792,crop=640:640[a38];\
+ [a0][a1][a2][a3][a4][a5][a6][a7][a8][a9][a10][a11][a12][a13][a14][a15][a16][a17][a18][a19][a20][a21][a22][a23][a24][a25][a26][a27][a28][a29][a30][a31][a32][a33][a34][a35][a36][a37][a38]concat=n=39:v=1:a=0[v]"\
+ -map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -t 00:00:03 -crf 28 -q:v 10 -r 16 manual-zoompan-single.mp4 
+
+ time ffmpeg \
+-loop 1 -t 0.0625 -i 0001.png \
+-filter_complex \
+"[0:v]crop=640:640,scale=-1:640[a0];\
+ [0:v]crop=636:636,scale=-1:640[a1];\
+ [0:v]crop=632:632,scale=-1:640[a2];\
+ [0:v]crop=624:624,scale=-1:640[a3];\
+ [0:v]crop=620:620,scale=-1:640[a4];\
+ [0:v]crop=616:616,scale=-1:640[a5];\
+ [0:v]crop=612:612,scale=-1:640[a6];\
+ [0:v]crop=608:608,scale=-1:640[a7];\
+ [0:v]crop=604:604,scale=-1:640[a8];\
+ [0:v]crop=600:600,scale=-1:640[a9];\
+ [0:v]crop=596:596,scale=-1:640[a10];\
+ [0:v]crop=592:592,scale=-1:640[a11];\
+ [0:v]crop=588:588,scale=-1:640[a12];\
+ [0:v]crop=584:584,scale=-1:640[a13];\
+ [0:v]crop=580:580,scale=-1:640[a14];\
+ [0:v]crop=576:576,scale=-1:640[a15];\
+ [0:v]crop=572:572,scale=-1:640[a16];\
+ [0:v]crop=568:568,scale=-1:640[a17];\
+ [0:v]crop=564:564,scale=-1:640[a18];\
+ [0:v]crop=560:560,scale=-1:640[a19];\
+ [0:v]crop=550:550,scale=-1:640[a20];\
+ [0:v]crop=546:546,scale=-1:640[a21];\
+ [0:v]crop=542:542,scale=-1:640[a22];\
+ [0:v]crop=538:538,scale=-1:640[a23];\
+ [0:v]crop=534:534,scale=-1:640[a24];\
+ [0:v]crop=530:530,scale=-1:640[a25];\
+ [0:v]crop=526:526,scale=-1:640[a26];\
+ [0:v]crop=522:522,scale=-1:640[a27];\
+ [0:v]crop=518:518,scale=-1:640[a28];\
+ [0:v]crop=514:514,scale=-1:640[a29];\
+ [0:v]crop=510:510,scale=-1:640[a30];\
+ [0:v]crop=506:506,scale=-1:640[a31];\
+ [0:v]crop=502:502,scale=-1:640[a32];\
+ [0:v]crop=498:498,scale=-1:640[a33];\
+ [0:v]crop=494:494,scale=-1:640[a34];\
+ [0:v]crop=490:490,scale=-1:640[a35];\
+ [0:v]crop=486:486,scale=-1:640[a36];\
+ [0:v]crop=482:482,scale=-1:640[a37];\
+ [0:v]crop=478:478,scale=-1:640[a38];\
+ [a0][a1][a2][a3][a4][a5][a6][a7][a8][a9][a10][a11][a12][a13][a14][a15][a16][a17][a18][a19][a20][a21][a22][a23][a24][a25][a26][a27][a28][a29][a30][a31][a32][a33][a34][a35][a36][a37][a38]concat=n=39:v=1:a=0[v]"\
+ -map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -t 00:00:03 -crf 28 -q:v 10 -r 16 manual-zoompan-single-new.mp4 
+
+
+
+
+
+time ffmpeg \
+-loop 1 -t 0.0625 -i 0001.png \
+-loop 1 -t 0.0625 -i 0002.png \
+-loop 1 -t 0.0625 -i 0003.png \
+-t 0.0625 -i achievement-info.png \
+-t 0.0625 -i goodwall-info.png \
+-filter_complex \
+"[0:v]scale=-2:ih,crop=640:640:0:0[a0];\
+ [0:v]scale=-2:ih+4,crop=640:640:2:2:[a1];\
+ [0:v]scale=-2:ih+8,crop=640:640:4:4[a2];\
+ [0:v]scale=-2:ih+12,crop=640:640:6:6[a3];\
+ [0:v]scale=-2:ih+16,crop=640:640:8:8[a4];\
+ [0:v]scale=-2:ih+20,crop=640:640:10:10[a5];\
+ [0:v]scale=-2:ih+24,crop=640:640:12:12[a6];\
+ [0:v]scale=-2:ih+28,crop=640:640:14:14[a7];\
+ [0:v]scale=-2:ih+32,crop=640:640:16:16[a8];\
+ [0:v]scale=-2:ih+36,crop=640:640:18:18[a9];\
+ [0:v]scale=-2:ih+40,crop=640:640:20:20[a10];\
+ [0:v]scale=-2:ih+44,crop=640:640:22:22[a11];\
+ [0:v]scale=-2:ih+48,crop=640:640:24:24[a12];\
+ [0:v]scale=-2:ih+52,crop=640:640:26:26[a13];\
+ [0:v]scale=-2:ih+56,crop=640:640:28:28[a14];\
+ [0:v]scale=-2:ih+60,crop=640:640:30:30[a15];\
+ [0:v]scale=-2:ih+64,crop=640:640:32:32:[a16];\
+ [0:v]scale=-2:ih+68,crop=640:640:34:34[a17];\
+ [0:v]scale=-2:ih+72,crop=640:640:36:36[a18];\
+ [0:v]scale=-2:ih+76,crop=640:640:38:38[a19];\
+ [0:v]scale=-2:ih+80,crop=640:640:40:40[a20];\
+ [0:v]scale=-2:ih+84,crop=640:640:42:42[a21];\
+ [0:v]scale=-2:ih+88,crop=640:640:44:44[a22];\
+ [0:v]scale=-2:ih+92,crop=640:640:46:46[a23];\
+ [0:v]scale=-2:ih+96,crop=640:640:48:48[a24];\
+ [0:v]scale=-2:ih+100,crop=640:640:50:50[a25];\
+ [0:v]scale=-2:ih+104,crop=640:640:52:52[a26];\
+ [0:v]scale=-2:ih+108,crop=640:640:54:54[a27];\
+ [0:v]scale=-2:ih+112,crop=640:640:56:56[a28];\
+ [0:v]scale=-2:ih+116,crop=640:640:58:58[a29];\
+ [0:v]scale=-2:ih+120,crop=640:640:60:60[a30];\
+ [0:v]scale=-2:ih+124,crop=640:640:62:62:[a31];\
+ [0:v]scale=-2:ih+128,crop=640:640:64:64[a32];\
+ [0:v]scale=-2:ih+132,crop=640:640:66:66[a33];\
+ [0:v]scale=-2:ih+136,crop=640:640:68:68[a34];\
+ [0:v]crop=484:484,scale=-1:640[a35];\
+ [0:v]scale=-2:ih+144,crop=640:640:72:72[a36];\
+ [0:v]scale=-2:ih+148,crop=640:640:74:74[a37];\
+ [0:v]scale=-2:ih+152,crop=640:640:76:76[a38];\
+ [0:v]scale=-2:ih+156,crop=640:640:78:78[a39];\
+ [a0][a1][a2][a3][a4][a5][a6][a7][a8][a9][a10][a11][a12][a13][a14][a15][a16][a17][a18][a19][a20][a21][a22][a23][a24][a25][a26][a27][a28][a29][a30][a31][a32][a33][a34][a35][a36][a37][a38]concat=n=39:v=1:a=0[image1];\
+ [1:v][a39]blend=all_expr='A*(if(gte(T,0.0625),1,T/0.0625))+B*(1-(if(gte(T,0.0625),1,T/0.0625)))'[b1v];
+ [1:v]scale=-2:ih,crop=640:640:0:0[b0];\
+ [1:v]scale=-2:ih+4,crop=640:640:2:2:[b1];\
+ [1:v]scale=-2:ih+8,crop=640:640:4:4[b2];\
+ [1:v]scale=-2:ih+12,crop=640:640:6:6[b3];\
+ [1:v]scale=-2:ih+16,crop=640:640:8:8[b4];\
+ [1:v]scale=-2:ih+20,crop=640:640:10:10[b5];\
+ [1:v]scale=-2:ih+24,crop=640:640:12:12[b6];\
+ [1:v]scale=-2:ih+28,crop=640:640:14:14[b7];\
+ [1:v]scale=-2:ih+32,crop=640:640:16:16[b8];\
+ [1:v]scale=-2:ih+36,crop=640:640:18:18[b9];\
+ [1:v]scale=-2:ih+40,crop=640:640:20:20[b10];\
+ [1:v]scale=-2:ih+44,crop=640:640:22:22[b11];\
+ [1:v]scale=-2:ih+48,crop=640:640:24:24[b12];\
+ [1:v]scale=-2:ih+52,crop=640:640:26:26[b13];\
+ [1:v]scale=-2:ih+56,crop=640:640:28:28[b14];\
+ [1:v]scale=-2:ih+60,crop=640:640:30:30[b15];\
+ [1:v]scale=-2:ih+64,crop=640:640:32:32:[b16];\
+ [1:v]scale=-2:ih+68,crop=640:640:34:34[b17];\
+ [1:v]scale=-2:ih+72,crop=640:640:36:36[b18];\
+ [1:v]scale=-2:ih+76,crop=640:640:38:38[b19];\
+ [1:v]scale=-2:ih+80,crop=640:640:40:40[b20];\
+ [1:v]scale=-2:ih+84,crop=640:640:42:42[b21];\
+ [1:v]scale=-2:ih+88,crop=640:640:44:44[b22];\
+ [1:v]scale=-2:ih+92,crop=640:640:46:46[b23];\
+ [1:v]scale=-2:ih+96,crop=640:640:48:48[b24];\
+ [1:v]scale=-2:ih+100,crop=640:640:50:50[b25];\
+ [1:v]scale=-2:ih+104,crop=640:640:52:52[b26];\
+ [1:v]scale=-2:ih+108,crop=640:640:54:54[b27];\
+ [1:v]scale=-2:ih+112,crop=640:640:56:56[b28];\
+ [1:v]scale=-2:ih+116,crop=640:640:58:58[b29];\
+ [1:v]scale=-2:ih+120,crop=640:640:60:60[b30];\
+ [1:v]scale=-2:ih+124,crop=640:640:62:62:[b31];\
+ [1:v]scale=-2:ih+128,crop=640:640:64:64[b32];\
+ [1:v]scale=-2:ih+132,crop=640:640:66:66[b33];\
+ [1:v]scale=-2:ih+136,crop=640:640:68:68[b34];\
+ [1:v]crop=484:484,scale=-1:640[b35];\
+ [1:v]scale=-2:ih+144,crop=640:640:72:72[b36];\
+ [1:v]scale=-2:ih+148,crop=640:640:74:74[b37];\
+ [1:v]scale=-2:ih+152,crop=640:640:76:76[b38];\
+ [1:v]scale=-2:ih+156,crop=640:640:78:78[b39];\
+ [b0][b1][b2][b3][b4][b5][b6][b7][b8][b9][b10][b11][b12][b13][b14][b15][b16][b17][b18][b19][b20][b21][b22][b23][b24][b25][b26][b27][b28][b29][b30][b31][b32][b33][b34][b35][b36][b37][b38]concat=n=39:v=1:a=0[image2];\
+ [2:v][b39]blend=all_expr='A*(if(gte(T,0.0625),1,T/0.0625))+B*(1-(if(gte(T,0.0625),1,T/0.0625)))'[b2v];
+ [2:v]scale=-2:ih,crop=640:640:0:0[c0];\
+ [2:v]scale=-2:ih+4,crop=640:640:2:2:[c1];\
+ [2:v]scale=-2:ih+8,crop=640:640:4:4[c2];\
+ [2:v]scale=-2:ih+12,crop=640:640:6:6[c3];\
+ [2:v]scale=-2:ih+16,crop=640:640:8:8[c4];\
+ [2:v]scale=-2:ih+20,crop=640:640:10:10[c5];\
+ [2:v]scale=-2:ih+24,crop=640:640:12:12[c6];\
+ [2:v]scale=-2:ih+28,crop=640:640:14:14[c7];\
+ [2:v]scale=-2:ih+32,crop=640:640:16:16[c8];\
+ [2:v]scale=-2:ih+36,crop=640:640:18:18[c9];\
+ [2:v]scale=-2:ih+40,crop=640:640:20:20[c10];\
+ [2:v]scale=-2:ih+44,crop=640:640:22:22[c11];\
+ [2:v]scale=-2:ih+48,crop=640:640:24:24[c12];\
+ [2:v]scale=-2:ih+52,crop=640:640:26:26[c13];\
+ [2:v]scale=-2:ih+56,crop=640:640:28:28[c14];\
+ [2:v]scale=-2:ih+60,crop=640:640:30:30[c15];\
+ [2:v]scale=-2:ih+64,crop=640:640:32:32:[c16];\
+ [2:v]scale=-2:ih+68,crop=640:640:34:34[c17];\
+ [2:v]scale=-2:ih+72,crop=640:640:36:36[c18];\
+ [2:v]scale=-2:ih+76,crop=640:640:38:38[c19];\
+ [2:v]scale=-2:ih+80,crop=640:640:40:40[c20];\
+ [2:v]scale=-2:ih+84,crop=640:640:42:42[c21];\
+ [2:v]scale=-2:ih+88,crop=640:640:44:44[c22];\
+ [2:v]scale=-2:ih+92,crop=640:640:46:46[c23];\
+ [2:v]scale=-2:ih+96,crop=640:640:48:48[c24];\
+ [2:v]scale=-2:ih+100,crop=640:640:50:50[c25];\
+ [2:v]scale=-2:ih+104,crop=640:640:52:52[c26];\
+ [2:v]scale=-2:ih+108,crop=640:640:54:54[c27];\
+ [2:v]scale=-2:ih+112,crop=640:640:56:56[c28];\
+ [2:v]scale=-2:ih+116,crop=640:640:58:58[c29];\
+ [2:v]scale=-2:ih+120,crop=640:640:60:60[c30];\
+ [2:v]scale=-2:ih+124,crop=640:640:62:62:[c31];\
+ [2:v]scale=-2:ih+128,crop=640:640:64:64[c32];\
+ [2:v]scale=-2:ih+132,crop=640:640:66:66[c33];\
+ [2:v]scale=-2:ih+136,crop=640:640:68:68[c34];\
+ [2:v]crop=484:484,scale=-1:640[c35];\
+ [2:v]scale=-2:ih+144,crop=640:640:72:72[c36];\
+ [2:v]scale=-2:ih+148,crop=640:640:74:74[c37];\
+ [2:v]scale=-2:ih+152,crop=640:640:76:76[c38];\
+ [2:v]scale=-2:ih+156,crop=640:640:78:78,trim=duration=0.0625,split[c39][c39c];\
+ [c0][c1][c2][c3][c4][c5][c6][c7][c8][c9][c10][c11][c12][c13][c14][c15][c16][c17][c18][c19][c20][c21][c22][c23][c24][c25][c26][c27][c28][c29][c30][c31][c32][c33][c34][c35][c36][c37][c38]concat=n=39:v=1:a=0[image3];\
+ [2:v]scale=-2:ih+160,crop=640:640:80:80,trim=duration=0.0625,setsar=sar=1/1,boxblur=20:1[c0b];\
+ [c0b][4:v]overlay[c0bb];\
+ [c0bb][c39]blend=all_expr='A*(if(gte(T,0.0625),1,T/0.0625))+B*(1-(if(gte(T,0.0625),1,T/0.0625)))'[b3v];
+ [c39c]scale=-2:ih+4,crop=640:640:2:2:,trim=duration=0.0625,split[c1b][c1bc];\
+ [c1bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c2b][c2bc];\
+ [c2bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c3b][c3bc];\
+ [c3bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c4b][c4bc];\
+ [c4bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c5b][c5bc];\
+ [c5bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c6b][c6bc];\
+ [c6bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c7b][c7bc];\
+ [c7bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c8b][c8bc];\
+ [c8bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c9b][c9bc];\
+ [c9bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c10b][c10bc];\
+ [c10bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c11b][c11bc];\
+ [c11bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c12b][c12bc];\
+ [c12bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c13b][c13bc];\
+ [c13bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c14b][c14bc];\
+ [c14bc]scale=-2:ih+4,crop=640:640:2:2,trim=duration=0.0625,split[c15b][last];\
+ [c15b]setpts=50*PTS[lasthold];\
+ [c1b][c2b][c3b][c4b][c5b][c6b][c7b][c8b][c9b][c10b][c11b][c12b][c13b][c14b][lasthold]concat=n=15:v=1:a=0[image3b];\
+ [image3b]boxblur=20:1[image3bb];\
+ [last]boxblur=20:1,fade=t=in:st=0:d=2:alpha=1[lastblur];\
+ [image3bb][lastblur]overlay[hold];
+ [image1][b1v][image2][b2v][image3]concat=n=5:v=1:a=0[slides];\
+ [slides][3:v]overlay[slideshow];\
+ [b3v][hold]concat=n=2:v=1:a=0[end];\
+ [end][4:v]overlay[end2];\
+ [slideshow][end2]concat=n=2:v=1:a=0,format=yuv420p[v]" \
+-map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -crf 28 -r 16 manual-zoompan.mp4
+
+
+time ffmpeg \
+-loop 1 -t 0.0625 -i 0001.png \
+-loop 1 -t 0.0625 -i 0002.png \
+-loop 1 -t 0.0625 -i 0003.png \
+-loop 1 -t 0.0625 -i 0001.png \
+-t 0.0625 -i achievement-info.png \
+-t 0.0625 -i goodwall-info.png \
+-filter_complex \
+"[0:v]crop=640:640,scale=-1:640[a0];\
+ [0:v]crop=636:636,scale=-1:640[a1];\
+ [0:v]crop=632:632,scale=-1:640[a2];\
+ [0:v]crop=624:624,scale=-1:640[a3];\
+ [0:v]crop=620:620,scale=-1:640[a4];\
+ [0:v]crop=616:616,scale=-1:640[a5];\
+ [0:v]crop=612:612,scale=-1:640[a6];\
+ [0:v]crop=608:608,scale=-1:640[a7];\
+ [0:v]crop=604:604,scale=-1:640[a8];\
+ [0:v]crop=600:600,scale=-1:640[a9];\
+ [0:v]crop=596:596,scale=-1:640[a10];\
+ [0:v]crop=592:592,scale=-1:640[a11];\
+ [0:v]crop=588:588,scale=-1:640[a12];\
+ [0:v]crop=584:584,scale=-1:640[a13];\
+ [0:v]crop=580:580,scale=-1:640[a14];\
+ [0:v]crop=576:576,scale=-1:640[a15];\
+ [0:v]crop=572:572,scale=-1:640[a16];\
+ [0:v]crop=568:568,scale=-1:640[a17];\
+ [0:v]crop=564:564,scale=-1:640[a18];\
+ [0:v]crop=560:560,scale=-1:640[a19];\
+ [0:v]crop=550:550,scale=-1:640[a20];\
+ [0:v]crop=546:546,scale=-1:640[a21];\
+ [0:v]crop=542:542,scale=-1:640[a22];\
+ [0:v]crop=538:538,scale=-1:640[a23];\
+ [0:v]crop=534:534,scale=-1:640[a24];\
+ [0:v]crop=530:530,scale=-1:640[a25];\
+ [0:v]crop=526:526,scale=-1:640[a26];\
+ [0:v]crop=522:522,scale=-1:640[a27];\
+ [0:v]crop=518:518,scale=-1:640[a28];\
+ [0:v]crop=514:514,scale=-1:640[a29];\
+ [0:v]crop=510:510,scale=-1:640[a30];\
+ [0:v]crop=506:506,scale=-1:640[a31];\
+ [0:v]crop=502:502,scale=-1:640[a32];\
+ [0:v]crop=498:498,scale=-1:640[a33];\
+ [0:v]crop=494:494,scale=-1:640[a34];\
+ [0:v]crop=490:490,scale=-1:640[a35];\
+ [a0][a1][a2][a3][a4][a5][a6][a7][a8][a9][a10][a11][a12][a13][a14][a15][a16][a17][a18][a19][a20][a21][a22][a23][a24][a25][a26][a27][a28][a29][a30][a31][a32][a33][a34]concat=n=35:v=1:a=0[image1];\
+ [1:v][a35]blend=all_expr='A*(if(gte(T,0.0625),1,T/0.0625))+B*(1-(if(gte(T,0.0625),1,T/0.0625)))'[b1v];
+ [1:v]crop=640:640,scale=-1:640[b0];\
+ [1:v]crop=636:636,scale=-1:640[b1];\
+ [1:v]crop=632:632,scale=-1:640[b2];\
+ [1:v]crop=624:624,scale=-1:640[b3];\
+ [1:v]crop=620:620,scale=-1:640[b4];\
+ [1:v]crop=616:616,scale=-1:640[b5];\
+ [1:v]crop=612:612,scale=-1:640[b6];\
+ [1:v]crop=608:608,scale=-1:640[b7];\
+ [1:v]crop=604:604,scale=-1:640[b8];\
+ [1:v]crop=600:600,scale=-1:640[b9];\
+ [1:v]crop=596:596,scale=-1:640[b10];\
+ [1:v]crop=592:592,scale=-1:640[b11];\
+ [1:v]crop=588:588,scale=-1:640[b12];\
+ [1:v]crop=584:584,scale=-1:640[b13];\
+ [1:v]crop=580:580,scale=-1:640[b14];\
+ [1:v]crop=576:576,scale=-1:640[b15];\
+ [1:v]crop=572:572,scale=-1:640[b16];\
+ [1:v]crop=568:568,scale=-1:640[b17];\
+ [1:v]crop=564:564,scale=-1:640[b18];\
+ [1:v]crop=560:560,scale=-1:640[b19];\
+ [1:v]crop=550:550,scale=-1:640[b20];\
+ [1:v]crop=546:546,scale=-1:640[b21];\
+ [1:v]crop=542:542,scale=-1:640[b22];\
+ [1:v]crop=538:538,scale=-1:640[b23];\
+ [1:v]crop=534:534,scale=-1:640[b24];\
+ [1:v]crop=530:530,scale=-1:640[b25];\
+ [1:v]crop=526:526,scale=-1:640[b26];\
+ [1:v]crop=522:522,scale=-1:640[b27];\
+ [1:v]crop=518:518,scale=-1:640[b28];\
+ [1:v]crop=514:514,scale=-1:640[b29];\
+ [1:v]crop=510:510,scale=-1:640[b30];\
+ [1:v]crop=506:506,scale=-1:640[b31];\
+ [1:v]crop=502:502,scale=-1:640[b32];\
+ [1:v]crop=498:498,scale=-1:640[b33];\
+ [1:v]crop=494:494,scale=-1:640[b34];\
+ [1:v]crop=490:490,scale=-1:640[b35];\
+ [b0][b1][b2][b3][b4][b5][b6][b7][b8][b9][b10][b11][b12][b13][b14][b15][b16][b17][b18][b19][b20][b21][b22][b23][b24][b25][b26][b27][b28][b29][b30][b31][b32][b33][b34]concat=n=35:v=1:a=0[image2];\
+ [2:v][b35]blend=all_expr='A*(if(gte(T,0.0625),1,T/0.0625))+B*(1-(if(gte(T,0.0625),1,T/0.0625)))'[b2v];
+ [2:v]crop=640:640,scale=-1:640[c0];\
+ [2:v]crop=636:636,scale=-1:640[c1];\
+ [2:v]crop=632:632,scale=-1:640[c2];\
+ [2:v]crop=624:624,scale=-1:640[c3];\
+ [2:v]crop=620:620,scale=-1:640[c4];\
+ [2:v]crop=616:616,scale=-1:640[c5];\
+ [2:v]crop=612:612,scale=-1:640[c6];\
+ [2:v]crop=608:608,scale=-1:640[c7];\
+ [2:v]crop=604:604,scale=-1:640[c8];\
+ [2:v]crop=600:600,scale=-1:640[c9];\
+ [2:v]crop=596:596,scale=-1:640[c10];\
+ [2:v]crop=592:592,scale=-1:640[c11];\
+ [2:v]crop=588:588,scale=-1:640[c12];\
+ [2:v]crop=584:584,scale=-1:640[c13];\
+ [2:v]crop=580:580,scale=-1:640[c14];\
+ [2:v]crop=576:576,scale=-1:640[c15];\
+ [2:v]crop=572:572,scale=-1:640[c16];\
+ [2:v]crop=568:568,scale=-1:640[c17];\
+ [2:v]crop=564:564,scale=-1:640[c18];\
+ [2:v]crop=560:560,scale=-1:640[c19];\
+ [2:v]crop=550:550,scale=-1:640[c20];\
+ [2:v]crop=546:546,scale=-1:640[c21];\
+ [2:v]crop=542:542,scale=-1:640[c22];\
+ [2:v]crop=538:538,scale=-1:640[c23];\
+ [2:v]crop=534:534,scale=-1:640[c24];\
+ [2:v]crop=530:530,scale=-1:640[c25];\
+ [2:v]crop=526:526,scale=-1:640[c26];\
+ [2:v]crop=522:522,scale=-1:640[c27];\
+ [2:v]crop=518:518,scale=-1:640[c28];\
+ [2:v]crop=514:514,scale=-1:640[c29];\
+ [2:v]crop=510:510,scale=-1:640[c30];\
+ [2:v]crop=506:506,scale=-1:640[c31];\
+ [2:v]crop=502:502,scale=-1:640[c32];\
+ [2:v]crop=498:498,scale=-1:640[c33];\
+ [2:v]crop=494:494,scale=-1:640[c34];\
+ [2:v]crop=484:484,scale=-1:640[d0];\
+ [2:v]crop=484:484,scale=-1:640[d1];\
+ [2:v]crop=484:484,scale=-1:640[d2];\
+ [2:v]crop=484:484,scale=-1:640[d3];\
+ [2:v]crop=484:484,scale=-1:640[d4];\
+ [2:v]crop=484:484,scale=-1:640[d5];\
+ [2:v]crop=484:484,scale=-1:640[d6];\
+ [2:v]crop=484:484,scale=-1:640[d7];\
+ [2:v]crop=484:484,scale=-1:640[d8];\
+ [2:v]crop=484:484,scale=-1:640[d9];\
+ [2:v]crop=484:484,scale=-1:640[d10];\
+ [2:v]crop=484:484,scale=-1:640[d11];\
+ [2:v]crop=484:484,scale=-1:640[d12];\
+ [2:v]crop=484:484,scale=-1:640[d13];\
+ [2:v]crop=484:484,scale=-1:640[d14];\
+ [2:v]crop=484:484,scale=-1:640[d15];\
+ [c0][c1][c2][c3][c4][c5][c6][c7][c8][c9][c10][c11][c12][c13][c14][c15][c16][c17][c18][c19][c20][c21][c22][c23][c24][c25][c26][c27][c28][c29][c30][c31][c32][c33][c34]concat=n=35:v=1:a=0[image3];\
+ [d0][d1][d2][d3][d4][d5][d6][d7][d8][d9][d10][d11][d12][d13][d14][d15]concat=n=16:v=1:a=0,split[base][blur];\
+ [base][3:v]overlay[based];\
+ [blur]boxblur=20:1,eq=0.3:-0.3:0.5:1:1:1:1:1[iblur];\
+ [iblur][4:v]overlay,split[blogo][blogo2];\
+ [blogo2]setpts=2*PTS[hold];\
+ [blogo]fade=in:st=0:d=1:alpha=1[blurred];\
+ [based][blurred]overlay[end];\
+ [image1][b1v][image2][b2v][image3]concat=n=5:v=1:a=0[slides];\
+ [slides][3:v]overlay[slideshow];\
+ [slideshow][end][hold]concat=n=3:v=1:a=0,format=yuv420p[v]" \
+ -map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -t 00:00:12 -crf 28 -r 16 manual-zoompan.mp4
+
+0.633
+0.650
+0.503
+ time ffmpeg \
+ -loop 1 -t 0.0625 -i 0001.png \
+ -filter_complex \
+ "[0:v]crop=484:484,scale=-1:640[d0];\
+ [0:v]crop=484:484,scale=-1:640[d1];\
+ [0:v]crop=484:484,scale=-1:640[d2];\
+ [0:v]crop=484:484,scale=-1:640[d3];\
+ [0:v]crop=484:484,scale=-1:640[d4];\
+ [0:v]crop=484:484,scale=-1:640[d5];\
+ [0:v]crop=484:484,scale=-1:640[d6];\
+ [0:v]crop=484:484,scale=-1:640[d7];\
+ [0:v]crop=484:484,scale=-1:640[d8];\
+ [0:v]crop=484:484,scale=-1:640[d9];\
+ [0:v]crop=484:484,scale=-1:640[d10];\
+ [0:v]crop=484:484,scale=-1:640[d11];\
+ [0:v]crop=484:484,scale=-1:640[d12];\
+ [0:v]crop=484:484,scale=-1:640[d13];\
+ [0:v]crop=484:484,scale=-1:640[d14];\
+ [0:v]crop=484:484,scale=-1:640[d15];\
+ [d0][d1][d2][d3][d4][d5][d6][d7][d8][d9][d10][d11][d12][d13][d14][d15]concat=n=16:v=1:a=0[v]" \
+  -map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -crf 28 -r 16 testagain.mp4
+
+   time ffmpeg \
+ -loop 1 -t 0.0625 -i 0001.png \
+ -filter_complex \
+ "[0:v]crop=484:484,scale=-1:640[img];\
+ [img]split=16[d0][d1][d2][d3][d4][d5][d6][d7][d8][d9][d10][d11][d12][d13][d14][d15];\
+ [d0][d1][d2][d3][d4][d5][d6][d7][d8][d9][d10][d11][d12][d13][d14][d15]concat=n=16:v=1:a=0,split[base][blur]; \
+ [blur]boxblur=20:1,eq=0.3:-0.3:0.5:1:1:1:1:1[iblur];\
+ [iblur]fade=in:st=0:d=3:alpha=1[blurred];\
+ [base][blurred]overlay[v]" \
+  -map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -crf 28 -r 16 testagain.mp4
+
