@@ -71,9 +71,11 @@ public class BitmapUtils {
         private int horizontalMargin;
         private int verticalMargin;
         private Canvas canvas;
+        private boolean centered;
 
         public LayoutBuilder() {
             // do nothing
+            this.centered = false;
         }
 
         public LayoutBuilder drawText(String text) {
@@ -124,33 +126,43 @@ public class BitmapUtils {
             int posX = 0, posY = 0;
             int height = layout.getHeight();
             int width = layout.getWidth();
-
-            Point pivotPoint = imageCorner.getCoordinatesOfCornerForCanvasWithMargin(canvas,
-                    horizontalMargin, verticalMargin);
-            switch(imageCorner) {
-                case UpperLeft:
-                    posX = pivotPoint.x;
-                    posY = pivotPoint.y;
-                    break;
-                case LowerLeft:
-                    posX = pivotPoint.x;
-                    posY = pivotPoint.y - height;
-                    break;
-                case UpperRight:
-                    posX = pivotPoint.x - width;
-                    posY = pivotPoint.y;
-                    break;
-                case LowerRight:
-                    posX = pivotPoint.x - width;
-                    posY = pivotPoint.y - height;
-                    break;
+            if(centered) {
+                posX = ((canvas.getWidth() - layout.getWidth())/2) + horizontalMargin;
+                posY = verticalMargin;
+            } else {
+                Point pivotPoint = imageCorner.getCoordinatesOfCornerForCanvasWithMargin(canvas,
+                        horizontalMargin, verticalMargin);
+                switch (imageCorner) {
+                    case UpperLeft:
+                        posX = pivotPoint.x;
+                        posY = pivotPoint.y;
+                        break;
+                    case LowerLeft:
+                        posX = pivotPoint.x;
+                        posY = pivotPoint.y - height;
+                        break;
+                    case UpperRight:
+                        posX = pivotPoint.x - width;
+                        posY = pivotPoint.y;
+                        break;
+                    case LowerRight:
+                        posX = pivotPoint.x - width;
+                        posY = pivotPoint.y - height;
+                        break;
+                }
             }
             return new TextLayoutInfo(layout, new Rect(posX, posY, posX + width, posY + height));
+        }
+
+        public LayoutBuilder placeOnCenter() {
+            this.centered = true;
+            return this;
         }
     }
 
     // an enum to represent a corner in the canvas from which to pivot from
     public enum ImageCorner {
+        None(-1, -1),
         UpperLeft(0, 0),
         LowerLeft(0, 1),
         UpperRight(1, 0),
@@ -243,7 +255,8 @@ public class BitmapUtils {
         LinearGradient shader = new LinearGradient(startX, startY, endX,
                 endY, startColor, endColor, Shader.TileMode.CLAMP);
         paint.setShader(shader);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.ADD));
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
         canvas.drawRect(0, h - gradientHeight, w, h, paint);
 
     }
