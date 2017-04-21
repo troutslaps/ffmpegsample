@@ -68,10 +68,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         urls = Arrays.asList(
-                "http://i.imgur.com/hYeR3Xp.jpg",
-                "http://i.imgur.com/IIbEefR.jpg",
-                "http://i.imgur.com/P1qUUrO.jpg",
-                "http://i.imgur.com/hj1tvag.jpg");
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/16230576_1373671602695005_4146281622771073024_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17596302_664051210471134_884001408792133632_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17437697_1516158608418711_8967036538814726144_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17596587_1346776738743155_3359202571989286912_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17662472_1179519815490451_4520529327594405888_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17332391_1246656542118559_4780760601490096128_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17438756_752533078253863_6326778390862888960_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17265819_268878783524244_8942984395539611648_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17126450_269081786855102_6641093671066271744_n.jpg");
 
 
         savedImageFiles = new ArrayList<>();
@@ -427,29 +432,27 @@ public class MainActivity extends AppCompatActivity {
     private void downloadProfilePhoto() {
         DrawableRequestBuilder builder = Glide.with(this).load(profilePhotoUrl).centerCrop()
                 .bitmapTransform(new CropCircleTransformation(this));
-        builder.into(new SimpleTarget<GlideBitmapDrawable>(120, 120) {
+        builder.into(new SimpleTarget<GlideBitmapDrawable>(128, 129) {
 
             @Override
             public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super
                     GlideBitmapDrawable> glideAnimation) {
-                String path = save(resource.getBitmap(), "profile.png", true);
-                if (path != null) {
-                    profilePhotoPath = path;
-                    createLogos();
-                }
+                    createLogos(resource.getBitmap());
             }
         });
     }
 
-    private void createLogos() {
-        Bitmap transparentBitmap = Bitmap.createBitmap(IMAGE_SIZE, IMAGE_SIZE, Bitmap.Config
-                .ARGB_8888);
+    private void createLogos(Bitmap profilePhoto) {
+
         try {
             String firstLogoPath = createOutputFile("logo1", "png").getAbsolutePath();
-            ShareExperienceUtils.prepareSingleImageFile(transparentBitmap, firstLogoPath,
+            ShareExperienceUtils.prepareVideoInfo(firstLogoPath,
                     this, "Photography Contest", "Manila, Philippines");
             savedLogos.add(firstLogoPath);
-            savedLogos.add(firstLogoPath);
+            String secondLogoPath = createOutputFile("logo2", "png").getAbsolutePath();
+            ShareExperienceUtils.prepareVideoEndingWatermark(MainActivity.this, profilePhoto,
+                    "Loki Kitteh", IMAGE_SIZE, secondLogoPath);
+            savedLogos.add(secondLogoPath);
             enableButton();
         } catch (IOException e) {
             e.printStackTrace();
