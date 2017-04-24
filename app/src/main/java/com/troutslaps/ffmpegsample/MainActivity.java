@@ -53,9 +53,15 @@ public class MainActivity extends AppCompatActivity {
 
     String test = "abcdefghijklmnopqrstuvwxyz";
     private final static int FPS = 16;
+    private final static int VIDEO_SIZE = 640;
+    private final static float FRAME_DURATION = 0.0625f;
     private final static double SECS_PER_IMAGE = 3;
     private final static int IMAGE_SIZE = 640;
     private final static int SCALE_INCREMENT = 4;
+    private static final int ZOOMPAN_UPSCALE = 3;
+    private static final boolean USE_MANUAL_ZOOMPAN = true;
+    private final static int FRAMES_PER_IMAGE = (int) (Math.ceil(FPS * 2.75)) - 1;
+    String frameKeys = "abcdefghijklmnopqrstuvwxyz";
 
     private final static String profilePhotoUrl = "http://i.imgur.com/X3P1lnd.jpg";
     private String profilePhotoPath;
@@ -71,12 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/16230576_1373671602695005_4146281622771073024_n.jpg",
                 "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17596302_664051210471134_884001408792133632_n.jpg",
                 "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17437697_1516158608418711_8967036538814726144_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17596587_1346776738743155_3359202571989286912_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17662472_1179519815490451_4520529327594405888_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17332391_1246656542118559_4780760601490096128_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17438756_752533078253863_6326778390862888960_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17265819_268878783524244_8942984395539611648_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17126450_269081786855102_6641093671066271744_n.jpg");
+                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17596587_1346776738743155_3359202571989286912_n.jpg");
 
 
         savedImageFiles = new ArrayList<>();
@@ -168,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onProgress(String message) {
-
+                                Log.d(TAG, message);
                                 float totalDuration = (savedImageFiles.size() + 1) * 3;
                                 int startIndex = message.indexOf("time=");
                                 if (startIndex > 0) {
@@ -188,8 +189,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(String message) {
                                 enableButton();
-                                Toast.makeText(MainActivity.this, "failed executing ffmpeg " +
-                                        "command = " + message, Toast.LENGTH_LONG).show();
+                                Log.d(TAG, message);
                             }
 
                             @Override
@@ -236,31 +236,73 @@ public class MainActivity extends AppCompatActivity {
         StringBuilder setSars = new StringBuilder();
         StringBuilder zoompans = new StringBuilder();
         StringBuilder lastConcat = new StringBuilder();
-        int numberOfFramesPerImage = 35;
+        int numberOfFramesPerImage = FRAMES_PER_IMAGE;
         int i = 0;
         for (i = 0; i < numberOfFiles; i++) {
 
             boolean lastImage = i >= numberOfFiles - 1;
-            zoompans.append(generateManualZoompanFiltersForInput(i, SCALE_INCREMENT, IMAGE_SIZE,
-                    numberOfFramesPerImage, String
-                            .format("img%1d", i), true));
+            if (USE_MANUAL_ZOOMPAN) {
+                zoompans.append(generateManualZoompanFiltersForInput(i, SCALE_INCREMENT, VIDEO_SIZE,
+                        FRAMES_PER_IMAGE, String
+                                .format("img%1d", i), true));
+            } else {
+                zoompans.append((generateZoompanFiltersForInput(i, String
+                        .format("img%1d", i))));
+            }
 
+            // add the manual zoompan's output pad to a final concat filter to be applied at the
+            // end to combine all
             lastConcat.append(String.format("[img%1d]", i));
-            if (!lastImage) {
-                String sar = generateSetSarForInput(i + 1, String.format("%1dv", i + 1));
+            if (USE_MANUAL_ZOOMPAN) {
+                // generate the blend filters
+
+                if (!lastImage) {
+                    // first generate a sar filter for each image to be blended, this explicitly
+                    // sets the
+
+                    // scale aspect ratio of each input image (1..n) to 1/1 so they wull be
+                    // accepted by the
+
+                    String sar = generateSetSarForInput(i + 1, String.format("%1dv", i + 1));
+                    setSars.append(sar);
+                    StringBuilder blend = new StringBuilder();
+                    String inputPad1 = String.format("[%1dv]", i + 1);
+                    String inputPad2 = String.format("[%s%1d]", frameKeys.charAt(i),
+                            FRAMES_PER_IMAGE);
+                    blend.append(inputPad1);
+                    blend.append(inputPad2);
+                    String duration = Float.toString(FRAME_DURATION);
+                    // blend filter
+                    // blend filter only lasts for 1 frame (computed as 1 second / FPS )
+                    // blend the last frame from the previous image's zoompan with the first
+                    // frame of
+                    // the next image's zoompan
+                    blend.append(String.format("blend=all_expr='A*(if(gte(T,%s),1,T/%s))+B*" +
+                            "(1-(if(gte(T,%s),1,T/%s)))'", duration, duration, duration, duration));
+                    blend.append(String.format("[b%1dv];", i));
+                    zoompans.append(blend);
+                    lastConcat.append(String.format("[b%1dv]", i));
+                }
+            } else {
+                String sar = generateSetSarForInput2(i + 1, String.format("%1dv", i + 1));
                 setSars.append(sar);
+                String inputPad2 = String.format("[%1dv]", i + 1);
+                String inputPad1 = String.format("[%1d:v]", i);
                 StringBuilder blend = new StringBuilder();
-                String inputPad1 = String.format("[%1dv]", i + 1);
-                String inputPad2 = String.format("[%s%1d]", test.charAt(i), numberOfFramesPerImage);
                 blend.append(inputPad1);
                 blend.append(inputPad2);
-                String duration = Float.toString(1.0f / FPS);
+                String duration = Float.toString(FRAME_DURATION);
+                // blend filter
+                // blend filter only lasts for 1 frame (computed as 1 second / FPS )
+                // blend the last frame from the previous image's zoompan with the first frame of
+                // the next image's zoompan
                 blend.append(String.format("blend=all_expr='A*(if(gte(T,%s),1,T/%s))+B*" +
                         "(1-(if(gte(T,%s),1,T/%s)))'", duration, duration, duration, duration));
                 blend.append(String.format("[b%1dv];", i));
                 zoompans.append(blend);
                 lastConcat.append(String.format("[b%1dv]", i));
             }
+
 
         }
 
@@ -333,6 +375,24 @@ public class MainActivity extends AppCompatActivity {
     private String generateSetSarForInput(int fileIndex, String outputPad) {
         String sarFormat = "[%1d:v]setsar=sar=1/1[%s];";
         return String.format(sarFormat, fileIndex, outputPad);
+    }
+
+    private String generateSetSarForInput2(int fileIndex, String outputPad) {
+        String sarFormat = "[%1d:v]scale=-2:1.125,setsar=sar=1/1[%s];";
+        return String.format(sarFormat, fileIndex, outputPad);
+    }
+
+    private String generateZoompanFiltersForInput(int fileIndex, String outputPad) {
+        String inputPad = String.format("[%1d:v]", fileIndex);
+        StringBuilder filterBuilder = new StringBuilder();
+        filterBuilder.append(inputPad);
+        filterBuilder.append(String.format("scale=-2:ih*%1d,zoompan=z='min(max(zoom,pzoom)" +
+                "+0.0015,1.5)':s=%1dx%1d:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'," +
+                "trim=duration=3", ZOOMPAN_UPSCALE, VIDEO_SIZE, VIDEO_SIZE));
+        filterBuilder.append(String.format("[%s]", outputPad));
+        filterBuilder.append(";");
+        return filterBuilder.toString();
+
     }
 
     private String generateManualZoompanFiltersForInput(int fileIndex, int zoomIncrement, int size,
