@@ -52,15 +52,16 @@ public class MainActivity extends AppCompatActivity {
     File output = null;
 
     String test = "abcdefghijklmnopqrstuvwxyz";
-    private final static int FPS = 16;
+    private final static int FPS = 25;
     private final static int VIDEO_SIZE = 640;
     private final static float FRAME_DURATION = 0.0625f;
     private final static double SECS_PER_IMAGE = 3;
     private final static int IMAGE_SIZE = 640;
-    private final static int SCALE_INCREMENT = 4;
-    private static final int ZOOMPAN_UPSCALE = 3;
+    private final static int SCALE_INCREMENT = 8;
+    private static final int ZOOMPAN_UPSCALE = 5;
     private static final boolean USE_MANUAL_ZOOMPAN = false;
-    private final static int FRAMES_PER_IMAGE = (int) (Math.ceil(FPS * 2.75)) - 1;
+//    private final static int FRAMES_PER_IMAGE = (int) (Math.ceil(FPS * 2.75)) - 1;
+private final static int FRAMES_PER_IMAGE = 35;
     String frameKeys = "abcdefghijklmnopqrstuvwxyz";
 
     private final static String profilePhotoUrl = "http://i.imgur.com/X3P1lnd.jpg";
@@ -79,9 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 "https://instagram.fmnl4-5.fna.fbcdn" +
                         ".net/t51.2885-15/e35/17596302_664051210471134_884001408792133632_n.jpg",
                 "https://instagram.fmnl4-5.fna.fbcdn" +
-                        ".net/t51.2885-15/e35/17437697_1516158608418711_8967036538814726144_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn" +
-                        ".net/t51.2885-15/e35/17596587_1346776738743155_3359202571989286912_n.jpg");
+                        ".net/t51.2885-15/e35/17437697_1516158608418711_8967036538814726144_n" +
+                        ".jpg");
 
 
         savedImageFiles = new ArrayList<>();
@@ -294,6 +294,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             } else {
+                String sar = generateSetSarForInput2(i, String.format("%1dv", i), lastImage);
+                setSars.append(sar);
 //                if (!lastImage) {
 //
 //                    String sar = generateSetSarForInput2(i, String.format("%1dv", i), i > 0 && i <
@@ -328,11 +330,12 @@ public class MainActivity extends AppCompatActivity {
         if (USE_MANUAL_ZOOMPAN) {
             lastConcat.append(String.format("concat=n=%1d:v=1:a=0,format=yuv420p[slides];", (
                     (numberOfFiles * 2) - 1)));
-            complexFilterBuilder.append(setSars);
+
         } else {
             lastConcat.append(String.format("concat=n=%1d:v=1:a=0,format=yuv420p[slides];",
                     numberOfFiles));
         }
+        complexFilterBuilder.append(setSars);
         complexFilterBuilder.append(zoompans);
         complexFilterBuilder.append(lastConcat);
 
@@ -350,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
             inputPad = String.format("[%s%1d]", frameKeys.charAt(numberOfFiles - 1),
                     FRAMES_PER_IMAGE);
         } else {
-            inputPad = String.format("[%1d:v]", numberOfFiles - 1);
+            inputPad = String.format("[%1dv2]", numberOfFiles - 1);
         }
         complexFilterBuilder.append(inputPad);
         complexFilterBuilder.append("split=");
@@ -405,8 +408,8 @@ public class MainActivity extends AppCompatActivity {
         commands.add("libx264");
         commands.add("-pix_fmt");
         commands.add("yuv420p");
-        commands.add("-t");
-        commands.add(String.format("00:00:%02d", (numberOfFiles + 1) * 3));
+//        commands.add("-t");
+//        commands.add(String.format("00:00:%02d", (numberOfFiles + 1) * 3));
         commands.add("-s");
         commands.add("640x640");
         commands.add("-aspect");
@@ -430,23 +433,27 @@ public class MainActivity extends AppCompatActivity {
 
     private String generateSetSarForInput2(int fileIndex, String outputPad, boolean split) {
         String sarFormat = "";
+        int downscaled = (int) Math.floor((double)VIDEO_SIZE * 0.75);
         if (split) {
-            sarFormat = "[%1d:v]scale=-2:1.125,setsar=sar=1/1,split[%s][%s2];";
-            return String.format(sarFormat, fileIndex, outputPad, outputPad);
+            sarFormat = "[%1d:v]scale=-2:%1d,setsar=sar=1/1,split[%s][%s2];";
+            return String.format(sarFormat, fileIndex, downscaled, outputPad, outputPad);
         } else {
-            sarFormat = "[%1d:v]scale=-2:1.125,setsar=sar=1/1[%s];";
-            return String.format(sarFormat, fileIndex, outputPad);
+            sarFormat = "[%1d:v]scale=-2:%1d,setsar=sar=1/1[%s];";
+            return String.format(sarFormat, fileIndex, downscaled, outputPad);
         }
 
     }
 
     private String generateZoompanFiltersForInput(int fileIndex, String outputPad) {
-        String inputPad = String.format("[%1d:v]", fileIndex);
+        int downscaled = (int) Math.floor((double)VIDEO_SIZE * 0.75);
+
+        String inputPad = String.format("[%1dv]", fileIndex);
         StringBuilder filterBuilder = new StringBuilder();
         filterBuilder.append(inputPad);
-        filterBuilder.append(String.format("scale=-2:ih*%1d,zoompan=z='min(max(zoom,pzoom)" +
+        filterBuilder.append(String.format("scale=-2:%1d,zoompan=z='min(max(zoom,pzoom)" +
                 "+0.0015,1.5)':s=%1dx%1d:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'," +
-                "trim=duration=3", ZOOMPAN_UPSCALE, VIDEO_SIZE, VIDEO_SIZE));
+                "trim=duration=3", downscaled * ZOOMPAN_UPSCALE, downscaled,
+                downscaled));
         filterBuilder.append(String.format("[%s]", outputPad));
         filterBuilder.append(";");
         return filterBuilder.toString();
