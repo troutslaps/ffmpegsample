@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int IMAGE_SIZE = 640;
     private final static int SCALE_INCREMENT = 4;
     private static final int ZOOMPAN_UPSCALE = 3;
-    private static final boolean USE_MANUAL_ZOOMPAN = true;
+    private static final boolean USE_MANUAL_ZOOMPAN = false;
     private final static int FRAMES_PER_IMAGE = (int) (Math.ceil(FPS * 2.75)) - 1;
     String frameKeys = "abcdefghijklmnopqrstuvwxyz";
 
@@ -74,10 +74,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         urls = Arrays.asList(
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/16230576_1373671602695005_4146281622771073024_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17596302_664051210471134_884001408792133632_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17437697_1516158608418711_8967036538814726144_n.jpg",
-                "https://instagram.fmnl4-5.fna.fbcdn.net/t51.2885-15/e35/17596587_1346776738743155_3359202571989286912_n.jpg");
+                "https://instagram.fmnl4-5.fna.fbcdn" +
+                        ".net/t51.2885-15/e35/16230576_1373671602695005_4146281622771073024_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn" +
+                        ".net/t51.2885-15/e35/17596302_664051210471134_884001408792133632_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn" +
+                        ".net/t51.2885-15/e35/17437697_1516158608418711_8967036538814726144_n.jpg",
+                "https://instagram.fmnl4-5.fna.fbcdn" +
+                        ".net/t51.2885-15/e35/17596587_1346776738743155_3359202571989286912_n.jpg");
 
 
         savedImageFiles = new ArrayList<>();
@@ -142,7 +146,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onFailure() {
 
                     enableButton();
-                    Toast.makeText(MainActivity.this, "failed to load ffmpeg", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "failed to load ffmpeg", Toast.LENGTH_LONG)
+                            .show();
                 }
 
                 @Override
@@ -195,9 +200,10 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(String message) {
                                 enableButton();
-                                Toast.makeText(MainActivity.this,"succeeded executing ffmpeg command = " + message + "," +
+                                Toast.makeText(MainActivity.this, "succeeded executing ffmpeg " +
+                                        "command = " + message + "," +
                                         " " + output.getAbsolutePath(), Toast.LENGTH_LONG).show();
-                                        Log.d(TAG, "succeeded executing ffmpeg command = " + message + "," +
+                                Log.d(TAG, "succeeded executing ffmpeg command = " + message + "," +
                                         " " + output.getAbsolutePath());
                             }
 
@@ -245,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                 zoompans.append(generateManualZoompanFiltersForInput(i, SCALE_INCREMENT, VIDEO_SIZE,
                         FRAMES_PER_IMAGE, String
                                 .format("img%1d", i), true));
+
             } else {
                 zoompans.append((generateZoompanFiltersForInput(i, String
                         .format("img%1d", i))));
@@ -253,16 +260,17 @@ public class MainActivity extends AppCompatActivity {
             // add the manual zoompan's output pad to a final concat filter to be applied at the
             // end to combine all
             lastConcat.append(String.format("[img%1d]", i));
+
             if (USE_MANUAL_ZOOMPAN) {
                 // generate the blend filters
 
+
+                // first generate a sar filter for each image to be blended, this explicitly
+                // sets the
+
+                // scale aspect ratio of each input image (1..n) to 1/1 so they wull be
+                // accepted by the
                 if (!lastImage) {
-                    // first generate a sar filter for each image to be blended, this explicitly
-                    // sets the
-
-                    // scale aspect ratio of each input image (1..n) to 1/1 so they wull be
-                    // accepted by the
-
                     String sar = generateSetSarForInput(i + 1, String.format("%1dv", i + 1));
                     setSars.append(sar);
                     StringBuilder blend = new StringBuilder();
@@ -279,36 +287,52 @@ public class MainActivity extends AppCompatActivity {
                     // the next image's zoompan
                     blend.append(String.format("blend=all_expr='A*(if(gte(T,%s),1,T/%s))+B*" +
                             "(1-(if(gte(T,%s),1,T/%s)))'", duration, duration, duration, duration));
+
                     blend.append(String.format("[b%1dv];", i));
                     zoompans.append(blend);
                     lastConcat.append(String.format("[b%1dv]", i));
                 }
+
             } else {
-                String sar = generateSetSarForInput2(i + 1, String.format("%1dv", i + 1));
-                setSars.append(sar);
-                String inputPad2 = String.format("[%1dv]", i + 1);
-                String inputPad1 = String.format("[%1d:v]", i);
-                StringBuilder blend = new StringBuilder();
-                blend.append(inputPad1);
-                blend.append(inputPad2);
-                String duration = Float.toString(FRAME_DURATION);
-                // blend filter
-                // blend filter only lasts for 1 frame (computed as 1 second / FPS )
-                // blend the last frame from the previous image's zoompan with the first frame of
-                // the next image's zoompan
-                blend.append(String.format("blend=all_expr='A*(if(gte(T,%s),1,T/%s))+B*" +
-                        "(1-(if(gte(T,%s),1,T/%s)))'", duration, duration, duration, duration));
-                blend.append(String.format("[b%1dv];", i));
-                zoompans.append(blend);
-                lastConcat.append(String.format("[b%1dv]", i));
+//                if (!lastImage) {
+//
+//                    String sar = generateSetSarForInput2(i, String.format("%1dv", i), i > 0 && i <
+//                            numberOfFiles - 2);
+//                    setSars.append(sar);
+//                    String inputPad2 = "";
+//                    if (i < numberOfFiles - 2) {
+//                        inputPad2 = String.format("[%1dv2]", i + 1);
+//                    } else {
+//                        inputPad2 = String.format("[%1dv]", i + 1);
+//                    }
+//                    String inputPad1 = String.format("[%1dv]", i);
+//                    StringBuilder blend = new StringBuilder();
+//                    blend.append(inputPad1);
+//                    blend.append(inputPad2);
+//                    String duration = Float.toString(FRAME_DURATION);
+//                    // blend filter
+//                    // blend filter only lasts for 1 frame (computed as 1 second / FPS )
+//                    // blend the last frame from the previous image's zoompan with the first
+//                    // frame of
+//                    // the next image's zoompan
+//                    blend.append(String.format("blend=all_expr='A*(if(gte(T,%s),1,T/%s))+B*" +
+//                                    "(1-(if(gte(T,%s),1,T/%s)))'", duration, duration, duration,
+//                            duration));
+//                    blend.append(String.format("[b%1dv];", i));
+//                    zoompans.append(blend);
+//                    lastConcat.append(String.format("[b%1dv]", i));
+//                }
             }
-
-
         }
 
-        lastConcat.append(String.format("concat=n=%1d:v=1:a=0,format=yuv420p[slides];", (
-                (numberOfFiles * 2) - 1)));
-        complexFilterBuilder.append(setSars);
+        if (USE_MANUAL_ZOOMPAN) {
+            lastConcat.append(String.format("concat=n=%1d:v=1:a=0,format=yuv420p[slides];", (
+                    (numberOfFiles * 2) - 1)));
+            complexFilterBuilder.append(setSars);
+        } else {
+            lastConcat.append(String.format("concat=n=%1d:v=1:a=0,format=yuv420p[slides];",
+                    numberOfFiles));
+        }
         complexFilterBuilder.append(zoompans);
         complexFilterBuilder.append(lastConcat);
 
@@ -321,8 +345,13 @@ public class MainActivity extends AppCompatActivity {
         complexFilterBuilder.append(String.format("[slides]%soverlay[slideshow];",
                 firstOverlayInputPad));
 
-        String inputPad = String.format("[%s%1d]", test.charAt(numberOfFiles - 1),
-                numberOfFramesPerImage);
+        String inputPad = "";
+        if (USE_MANUAL_ZOOMPAN) {
+            inputPad = String.format("[%s%1d]", frameKeys.charAt(numberOfFiles - 1),
+                    FRAMES_PER_IMAGE);
+        } else {
+            inputPad = String.format("[%1d:v]", numberOfFiles - 1);
+        }
         complexFilterBuilder.append(inputPad);
         complexFilterBuilder.append("split=");
         complexFilterBuilder.append(FPS);
@@ -334,16 +363,38 @@ public class MainActivity extends AppCompatActivity {
         complexFilterBuilder.append(holdFrames);
         complexFilterBuilder.append(";");
         complexFilterBuilder.append(holdFrames);
-        complexFilterBuilder.append(String.format("concat=n=%1d:v=1:a=0,split[base][blur];", FPS));
-        complexFilterBuilder.append(String.format("[base]%soverlay[based];", firstOverlayInputPad));
+        complexFilterBuilder.append(String.format("concat=n=%1d:v=1:a=0,split[base][blur];",
+                FPS));
+        complexFilterBuilder.append(String.format("[base]%soverlay[based];",
+                firstOverlayInputPad));
         complexFilterBuilder.append("[blur]boxblur=20:1,eq=0.3:-0.1:0.7:1:1:1:1:1[iblur];");
         complexFilterBuilder.append(String.format("[iblur]%soverlay,split[blogo][blogo2];",
                 secondOverlayInputPad));
         complexFilterBuilder.append("[blogo2]setpts=2*PTS[hold];");
         complexFilterBuilder.append("[blogo]fade=in:st=0:d=1:alpha=1[blurred];");
         complexFilterBuilder.append("[based][blurred]overlay[end];");
-        complexFilterBuilder.append("[slideshow][end][hold]concat=n=3:v=1:a=0,format=yuv420p[v]");
+        complexFilterBuilder.append("[slideshow][end][hold]concat=n=3:v=1:a=0," +
+                "format=yuv420p[v]");
 
+        File mediaFile = new File(Environment.getExternalStoragePublicDirectory(Environment
+                .DIRECTORY_PICTURES), "/videotests/logs/");
+
+        if (!mediaFile.exists()) {
+            mediaFile.mkdir();
+        }
+        File file = new File(mediaFile.getAbsolutePath(), new Date().getTime() + ".txt");
+
+        try {
+            FileOutputStream stream = new FileOutputStream(file);
+            stream.write(complexFilterBuilder.toString().getBytes());
+            stream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+
+        }
 
         commands.add(complexFilterBuilder.toString());
         commands.add("-map");
@@ -377,9 +428,16 @@ public class MainActivity extends AppCompatActivity {
         return String.format(sarFormat, fileIndex, outputPad);
     }
 
-    private String generateSetSarForInput2(int fileIndex, String outputPad) {
-        String sarFormat = "[%1d:v]scale=-2:1.125,setsar=sar=1/1[%s];";
-        return String.format(sarFormat, fileIndex, outputPad);
+    private String generateSetSarForInput2(int fileIndex, String outputPad, boolean split) {
+        String sarFormat = "";
+        if (split) {
+            sarFormat = "[%1d:v]scale=-2:1.125,setsar=sar=1/1,split[%s][%s2];";
+            return String.format(sarFormat, fileIndex, outputPad, outputPad);
+        } else {
+            sarFormat = "[%1d:v]scale=-2:1.125,setsar=sar=1/1[%s];";
+            return String.format(sarFormat, fileIndex, outputPad);
+        }
+
     }
 
     private String generateZoompanFiltersForInput(int fileIndex, String outputPad) {
@@ -497,7 +555,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResourceReady(GlideBitmapDrawable resource, GlideAnimation<? super
                     GlideBitmapDrawable> glideAnimation) {
-                    createLogos(resource.getBitmap());
+                createLogos(resource.getBitmap());
             }
         });
     }
@@ -529,6 +587,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setEnabled(false);
         btnStart.setText(text);
     }
+
     @Nullable
     private String save(Bitmap bitmap, String filename, boolean png) {
         File mediaFile = new File(Environment.getExternalStoragePublicDirectory(Environment
