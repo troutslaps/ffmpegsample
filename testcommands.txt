@@ -261,7 +261,6 @@ time ffmpeg \
 -loop 1 -t 0.0625 -i 0001.png \
 -loop 1 -t 0.0625 -i 0002.png \
 -loop 1 -t 0.0625 -i 0003.png \
--loop 1 -t 0.0625 -i 0001.png \
 -t 0.0625 -i achievement-info.png \
 -t 0.0625 -i goodwall-info.png \
 -filter_complex \
@@ -429,6 +428,19 @@ time ffmpeg \
  [0:v]crop=484:484,scale=-1:640[d15];\
  [d0][d1][d2][d3][d4][d5][d6][d7][d8][d9][d10][d11][d12][d13][d14][d15]concat=n=16:v=1:a=0[v]" \
   -map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -crf 28 -r 16 testagain.mp4
+
+ time ffmpeg \
+ -loop 1 -t 0.0625 -i 0001.png \
+ -loop 1 -t 0.0625 -i 0002.png \
+ -loop 1 -t 0.0625 -i 0003.png \
+ -filter_complex \
+ "[0:v]zoompan=-2:ih*4,zoompan=z='min(max(zoom,pzoom)+0.0015,1.5)':s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)',trim=duration=2[first];\
+  [1:v]zoompan=-2:ih*4,zoompan=z='min(max(zoom,pzoom)+0.0015,1.5)':s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)',trim=duration=2[second];\
+  [2:v]zoompan=-2:ih*4,zoompan=z='min(max(zoom,pzoom)+0.0015,1.5)':s=640x640:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)',trim=duration=2[third];\
+  [first][second][third]concat=n=3:a=0:v=1,format=yuv420p[v]" \
+  -map "[v]" -preset ultrafast -c:v libx264 -pix_fmt yuv420p -s 640x640 -aspect 1:1 -crf 28 -r 16 testagain.mp4
+
+
 
    time ffmpeg \
  -loop 1 -t 0.0625 -i 0001.png \
